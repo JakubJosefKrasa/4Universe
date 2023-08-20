@@ -1,5 +1,3 @@
-// TLoginSvr.cpp : WinMain의 구현입니다.
-
 #include "stdafx.h"
 #include "TLoginSvr.h"
 #include "TLoginSvrModule.h"
@@ -26,10 +24,10 @@ CTLoginSvrModule::CTLoginSvrModule()
 	m_dlCheckFile = 0;
 	m_hExecFile = INVALID_HANDLE_VALUE;
 
-#ifdef DEF_UDPLOG
 	memset( m_szLogServerIP, 0, ONE_KBYTE);
 	m_wLogServerPORT = 0;
 
+#ifdef DEF_UDPLOG
 	m_pUdpSocket = new CUdpSocket;
 #endif
 
@@ -537,19 +535,25 @@ BYTE CTLoginSvrModule::WaitForConnect()
 {
 	DWORD dwRead = 0;
 
-	if(!CSession::CreateSocket(m_accept))
+	if (!CSession::CreateSocket(m_accept))
+	{
+		LogEvent("Socket creation has failed!");
 		return FALSE;
+	}
 
-	if(!AcceptEx(
+	if (!AcceptEx(
 		m_listen.m_sock,
 		m_accept,
 		m_vAccept.GetBuffer(), 0,
 		sizeof(SOCKADDR) + 16,
 		sizeof(SOCKADDR) + 16,
 		&dwRead,
-		(LPOVERLAPPED) &m_ovAccept) &&
-		WSAGetLastError() != ERROR_IO_PENDING )
+		(LPOVERLAPPED)&m_ovAccept) &&
+		WSAGetLastError() != ERROR_IO_PENDING)
+	{
+		LogEvent("Socket acception has failed!");
 		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -643,6 +647,7 @@ BYTE CTLoginSvrModule::Accept()
 		return FALSE;
 #endif
 
+
 	if(m_accept == INVALID_SOCKET)
 	{
 		m_vAccept.Clear();
@@ -661,6 +666,7 @@ BYTE CTLoginSvrModule::Accept()
 	{
 		pUser->m_bUseCrypt = TRUE;
 
+/*
 #ifndef _DEBUG
 		SOCKADDR_IN *pAddr = (SOCKADDR_IN *) (m_vAccept.GetBuffer() + 10);
 		if(pAddr->sin_addr.s_addr << 8 != 0x5F6E4F00 && pAddr->sin_addr.s_addr << 8 != 0xAFFDCE00)
@@ -706,6 +712,7 @@ BYTE CTLoginSvrModule::Accept()
 				break;
 			}
 #endif
+*/
 	}
 
 	m_accept = INVALID_SOCKET;
@@ -804,17 +811,10 @@ DWORD CTLoginSvrModule::WorkThread()
 
 					switch(bTYPE)
 					{
-					case TOV_SSN_RECV	: OnInvalidSession(pUser); break;
-						// ***** IOCP 사용법 중 알아내기 힘든 첫번째 구문 (서버측 세션 종료) *****
-						//
-						// 서버가 먼저 closesocket()을 호출하여 세션을 종료한 경우이며
-						// WSARecv()가 호출된 상태에서만 이 코드로 들어오며
-						// 모든 오버랩 오퍼래이션이 종료된 상태이기 때문에
-						// 이 소켓 핸들과 관련된 데이타는 IOCP큐에 남아있지 않다.
-						// 따라서 이 스레드에서는 해당 세션에 관련된 작업 명령을 더이상 수행하지 않기 때문에
-						// 다른 스레드가 허락한다면 이 구문에서 세션 포인터를 삭제해도 무방하다.
-						// 세션을 삭제 하는데 가장 좋은 지점이므로 전체 시스템 설계시
-						// 정상적인 세션 종료는 서버측에서 먼저 세션을 종료시키도록 설계하는 것이 안전하다.
+					case TOV_SSN_RECV: 
+						OnInvalidSession(pUser); 
+						break;
+
 					case TOV_SSN_SEND:
 						OnSendComplete(pUser, 0);
 						break;
@@ -883,9 +883,6 @@ DWORD CTLoginSvrModule::WorkThread()
 
 void CTLoginSvrModule::ClosingSession( CTUser *pUser)
 {
-	// pUser에 대한 패킷처리가 완료되는 시점을 알림
-	// pUser에 대한 오버랩 오퍼래이션이 완료된 것을 확인후 호출 하여야 함.
-
 	PostQueuedCompletionStatus(
 		m_hIocpControl, 0,
 		COMP_CLOSE,
@@ -909,17 +906,8 @@ void CTLoginSvrModule::ProcessSession( CSqlDatabase *pDB, LPMAPTGROUP pGROUP, CT
 
 	if(!pUser->Read(dwIoBytes))
 	{
-		// ***** IOCP 사용법 중 알아내기 힘든 두번째 구문 (클라이언트측 세션 종료) *****
-		//
-		// 클라이언트가 먼저 closesocket()을 호출하여 세션을 종료한 경우이며
-		// WSARecv()가 호출된 상태에서만 이 코드로 들어오며
-		// 모든 오버랩 오퍼래이션이 종료 되었다고 볼 수 없다.
-		// 따라서 이후에 이 스레드에서 이 세션과 관련된 작업명령이 실행 될 수 있으므로
-		// 여기서 세션 포인터를 삭제하면 서버가 다운될 수 있다.
-		// Receive와 관련된 오버랩 오퍼레이션은 확실히 종료 되었으므로
-		// Send와 관련된 오버랩 오퍼레이션이 종료되었는지를
-		// 확인한 후 다른 스레드의 세션 삭제 수락과정을 거치고 세션을 삭제 해야 한다.
 		OnInvalidSession(pUser);
+
 		return;
 	}
 
@@ -929,7 +917,9 @@ void CTLoginSvrModule::ProcessSession( CSqlDatabase *pDB, LPMAPTGROUP pGROUP, CT
 
 		switch(dwResult)
 		{
-		case PACKET_INCOMPLETE	: bContinue = FALSE; break;
+		case PACKET_INCOMPLETE	: 
+			bContinue = FALSE;
+			break;
 		case PACKET_COMPLETE	:
 			{
 				DWORD dwResult = OnReceive( pDB, pGROUP, pUser, pUser->m_Recv);
@@ -943,44 +933,18 @@ void CTLoginSvrModule::ProcessSession( CSqlDatabase *pDB, LPMAPTGROUP pGROUP, CT
 				}
 
 				pUser->Flush();
+
+				break;
 			}
 
-			break;
-
-		default					: OnInvalidSession(pUser); return;
-			// ***** IOCP 사용법 중 알아내기 힘든 세번째 구문 (비 정상적인 세션 종료) *****
-			//
-			// 클라이언트가 패킷을 변조해서 보낸다거나 네트웤 오류로 인해 세션이 비 정상적인 상태가 된 경우이며
-			// WSARecv()가 호출된 상태에서만 이 코드로 들어오며
-			// 모든 오버랩 오퍼래이션이 종료 되었다고 볼 수 없다.
-			// 따라서 이후에 이 스레드에서 이 세션과 관련된 작업명령이 실행 될 수 있으므로
-			// 여기서 세션 포인터를 삭제하면 서버가 다운될 수 있다.
-			// Receive와 관련된 오버랩 오퍼레이션은 확실히 종료 되었으므로
-			// Send와 관련된 오버랩 오퍼레이션이 종료되었는지를
-			// 확인한 후 다른 스레드의 세션 삭제 수락과정을 거치고 세션을 삭제 해야 한다.
-			//
-			// *** 권장하지 않는 편법 ***
-			// 혹시나 여기서 closesocket()을 호출 하여
-			// 서버측 세션종료 프로세스로 들어가려는 시도는 하지 않는 것이 좋다.
-			// closesocket()을 호출해도 WSARecv()가 호출되지 않은 상태이기 때문에
-			// 서버측 세션종료 프로세스로 들어가지 못한다. 만약 WSARecv()를 먼저
-			// 호출하고 바로 closesocket()을 호출하면 프로세스로의 진입은 가능 할 수도 있으나
-			// 비 정상적인 세션을 대상으로 그런 액션을 하는 것은 위험하다.
+		default: 
+			OnInvalidSession(pUser);
+			return;
 		}
 	}
 
 	if(!pUser->WaitForMessage())
 	{
-		// ***** IOCP 사용법 중 알아내기 힘든 네번째 구문 (비 정상적인 세션 종료) *****
-		//
-		// 네트웤 오류로 인해 세션이 비 정상적인 상태에서 WSARecv()함수 호출이 실패한 경우이며
-		// WSARecv()가 호출된 상태에서만 이 코드로 들어오며
-		// 모든 오버랩 오퍼래이션이 종료 되었다고 볼 수 없다.
-		// 따라서 이후에 이 스레드에서 이 세션과 관련된 작업명령이 실행 될 수 있으므로
-		// 여기서 세션 포인터를 삭제하면 서버가 다운될 수 있다.
-		// Receive와 관련된 오버랩 오퍼레이션은 확실히 종료 되었으므로
-		// Send와 관련된 오버랩 오퍼레이션이 종료되었는지를
-		// 확인한 후 다른 스레드의 세션 삭제 수락과정을 거치고 세션을 삭제 해야 한다.
 		OnInvalidSession(pUser);
 	}
 }
@@ -1060,7 +1024,7 @@ DWORD CTLoginSvrModule::OnReceive( CSqlDatabase *pDB, LPMAPTGROUP pGROUP, CTUser
 	ON_RECEIVE(CT_EVENTUPDATE_REQ)
 	ON_RECEIVE(CT_EVENTMSG_REQ)
 
-	ON_RECEIVE(SM_QUITSERVICE_REQ)
+	//ON_RECEIVE(SM_QUITSERVICE_REQ)
 
 	ON_RECEIVE(CS_LOGIN_REQ)
 	ON_RECEIVE(CS_AGREEMENT_REQ)
@@ -1074,8 +1038,8 @@ DWORD CTLoginSvrModule::OnReceive( CSqlDatabase *pDB, LPMAPTGROUP pGROUP, CTUser
 
 	ON_RECEIVE(CS_START_REQ)
 
-	ON_RECEIVE(CS_TESTLOGIN_REQ)	// 현승룡 CS_TESTLOGIN_REQ
-	ON_RECEIVE(CS_TESTVERSION_REQ)	// 현승룡 CS_TESTVERSION_REQ
+	ON_RECEIVE(CS_TESTLOGIN_REQ)
+	ON_RECEIVE(CS_TESTVERSION_REQ)
 	ON_RECEIVE(CS_TERMINATE_REQ)
 	ON_RECEIVE(CS_HOTSEND_REQ)
 	}

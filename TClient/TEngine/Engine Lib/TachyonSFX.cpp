@@ -844,23 +844,27 @@ void CTachyonSFX::ClearDead()
 	VECTORTSFX::iterator itCSFX = m_vCSFX.begin();
 	VECTORCSFX::iterator itPSFX = m_vPSFX.begin();
 
-	while( itPSFX != m_vPSFX.end() )
-		if((*itPSFX)->IsDead())
+	while (itPSFX != m_vPSFX.end())
+	{
+		if ((*itPSFX)->IsDead())
 		{
 			delete (*itPSFX);
-			m_vPSFX.erase(itPSFX);
+			itPSFX = m_vPSFX.erase(itPSFX);
 		}
 		else
 			itPSFX++;
+	}
 
-	while( itCSFX != m_vCSFX.end() )
-		if((*itCSFX)->IsDead())
+	while (itCSFX != m_vCSFX.end())
+	{
+		if ((*itCSFX)->IsDead())
 		{
 			delete (*itCSFX);
-			m_vCSFX.erase(itCSFX);
+			itCSFX = m_vCSFX.erase(itCSFX);
 		}
 		else
 			itCSFX++;
+	}
 }
 
 void CTachyonSFX::CalcTick( LPDIRECT3DDEVICE9 pDevice, DWORD dwTick)

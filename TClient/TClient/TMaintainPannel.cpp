@@ -243,8 +243,10 @@ bool SortCancelFirst( CTClientMaintain* p1, CTClientMaintain* p2 )
 		BOOL bPremium1 = IsPREMIUMMaintain(p1);
 		BOOL bPremium2 = IsPREMIUMMaintain(p2);
 
-		if( bPremium1 && bPremium2 )
-			return true;
+		if (bPremium1 && bPremium2)
+		{
+			return p1->m_pTSKILL->m_wSkillID > p2->m_pTSKILL->m_wSkillID;
+		}
 		else if( bPremium1 || bPremium2 )
 		{
 			if( bPremium1 )
@@ -259,7 +261,7 @@ bool SortCancelFirst( CTClientMaintain* p1, CTClientMaintain* p2 )
 		}
 	}
 
-	return true;
+	return p1->m_pTSKILL->m_wSkillID > p2->m_pTSKILL->m_wSkillID;
 }
 
 void CTMaintainPannel::ResetMAINTAIN( CTClientObjBase* pOBJ, DWORD dwTick)
@@ -335,7 +337,7 @@ void CTMaintainPannel::ResetMAINTAIN( CTClientObjBase* pOBJ, DWORD dwTick)
 
 	for( BYTE i=0; i<TMTYPE_COUNT; ++i)
 	{
-		for( BYTE j=m_bCount[i] ; j<TMAINTAIN_COUNT; ++j)
+		for( BYTE j=m_bCount[i] ; j< TMAINTAIN_COUNT; ++j)
 		{
 			if( m_pMAINTAIN_ICON[i][j] )
 				m_pMAINTAIN_ICON[i][j]->ShowComponent(FALSE);

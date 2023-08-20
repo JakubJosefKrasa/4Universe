@@ -226,6 +226,7 @@ DWORD CTMapSvrModule::OnCT_CASTLEINFO_REQ(LPPACKETBUF pBUF)
 
 DWORD CTMapSvrModule::OnCS_CONNECT_REQ( LPPACKETBUF pBUF)
 {
+	std::cout << "OnCS_CONNECT_REQ START" << endl;
 	CTPlayer *pPlayer = (CTPlayer *) pBUF->m_pSESSION;
 	WORD wVersion;
 
@@ -309,10 +310,11 @@ DWORD CTMapSvrModule::OnCS_CONNECT_REQ( LPPACKETBUF pBUF)
 		pPlayer->m_dwIPAddr,
 		pPlayer->m_wPort,
 		pPlayer->m_dwUserID);
-
 #ifdef __N_PROTECT_DEBUG
 		LogNProtect(pPlayer->m_dwID, 0, _T("User Accept") );
 #endif
+
+	std::cout << "OnCS_CONNECT_REQ END" << endl;
 	return EC_NOERROR;
 }
 

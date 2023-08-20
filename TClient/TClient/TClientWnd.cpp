@@ -4370,7 +4370,10 @@ void CTClientWnd::CloseMessageBox( BOOL bCloseAll )
 	}
 	else
 	{
-		m_MsgBoxStack.pop();
+		if (!m_MsgBoxStack.empty())
+		{
+			m_MsgBoxStack.pop();
+		}
 
 		if( m_MsgBoxStack.empty() == false )
 		{

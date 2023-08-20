@@ -655,7 +655,7 @@ BOOL CTClientApp::InitInstance()
 	}
 	else
 	{
-#ifdef TEST_MODE
+#ifdef USE_CUSTOM_IP
 		CIPDialog dlg;
 		dlg.DoModal();
 
@@ -1292,14 +1292,16 @@ DWORD WINAPI CTClientApp::_LoadThread( LPVOID lpParam)
 
 BYTE CTClientApp::MainProc()
 {
-	static DWORD dwServiceTick = ((CTClientWnd *) m_pTachyonWnd)->GetTClientTickCount();
+	//static DWORD dwServiceTick = ((CTClientWnd *) m_pTachyonWnd)->GetTClientTickCount();
 	DWORD dwServiceCurTick = ((CTClientWnd *) m_pTachyonWnd)->GetTClientTickCount();
+	/*
 	if( dwServiceCurTick - dwServiceTick > TSERVICECHECK_INTERVAL )
 	{
 		m_TNICEventSink.UpdateService();
 
 		dwServiceTick = ((CTClientWnd *) m_pTachyonWnd)->GetTClientTickCount();
 	}
+	*/
 
 	static DWORD dwMSGTick = 0;
 	MSG msg;

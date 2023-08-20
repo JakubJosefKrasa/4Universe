@@ -1077,7 +1077,7 @@ void CTClientMoveObj::CalcSFX( CD3DDevice *pDevice,
 			CTachyonSFX::Release(pItem->m_dwID);
 			delete pItem;
 
-			pSFX->erase(it);
+			it = pSFX->erase(it);
 		}
 	}
 }

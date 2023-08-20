@@ -1,18 +1,6 @@
 #pragma once
 
-#define ON_RECEIVE(p)							case p : return On##p(pBUF);
-
-////////////////////// 매우매우 중요 - 소켓 종료요령 /////////////////////////////////////
-//
-// 1. 자기자신을 종료 하려면 핸들러함수에서 EC_SESSION_INVALIDCHAR를 리턴한다.
-//    (핸들러 함수의 파라메터로 넘어온 소켓 pBUF->m_pSESSION이 종료)
-//
-// 2. 다른 소켓을 종료 하려면 종료대상을 파라메터로 하여 CloseSession()을 호출한다.
-//    (예 : CloseSession(pTarget); pTarget이 스스로 종료하도록 유도된다)
-//
-// 3. 이 이외의 방법으로 절대 소켓을 종료하면 안된다.
-//
-//////////////////////////////////////////////////////////////////////////////////////////
+#define ON_RECEIVE(p)							case p : printf("Packet ID: %x\n", p); return On##p(pBUF);
 
 class CTMapSvrModule : public CAtlServiceModuleT< CTMapSvrModule, IDS_SERVICENAME >
 {
@@ -249,10 +237,13 @@ protected:
 	DWORD AIThread();
 	DWORD LogThread();
 
+public:
+		virtual DWORD OnEnter();
+
 protected:
 	virtual void OnERROR( DWORD dwErrorCode);
 
-	virtual DWORD OnEnter();
+	//virtual DWORD OnEnter();
 	virtual void OnExit();
 
 public:

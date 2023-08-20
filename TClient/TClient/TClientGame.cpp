@@ -4012,7 +4012,7 @@ void CTClientGame::CalcNUMBER( DWORD dwTick)
 
 		if(pTNumber->IsDead())
 		{
-			m_vTNUMBER.erase(itTNUMBER);
+			itTNUMBER = m_vTNUMBER.erase(itTNUMBER);
 			delete pTNumber;
 		}
 		else
@@ -5866,14 +5866,14 @@ void CTClientGame::CalcARROW( DWORD dwTick)
 
 				if(CanDefend( pTHOST, pTARGET, pTSKILL))
 					Defend( pTHOST, pTARGET, &pTARROW->m_vTSKILLDATA, &pTARROW->m_vTSKILLDATA.m_vTGROUND, pTSKILL, 0, TRUE );
-				m_vTARROW.erase(itTARROW);
+				itTARROW = m_vTARROW.erase(itTARROW);
 
 				delete pTARROW;
 			}
 		}
 		else
 		{
-			m_vTARROW.erase(itTARROW);
+			itTARROW = m_vTARROW.erase(itTARROW);
 			delete pTARROW;
 		}
 	}

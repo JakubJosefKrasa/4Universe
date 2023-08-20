@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 #ifndef STRICT
 #define STRICT
@@ -23,8 +24,8 @@
 //
 //	Log Server	UDP Send Define
 //
-#define	DEF_UDPLOG
-#define	DEF_UDPLOGGUILD
+//#define	DEF_UDPLOG
+//#define	DEF_UDPLOGGUILD
 
 
 #include "resource.h"

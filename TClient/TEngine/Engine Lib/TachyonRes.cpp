@@ -2047,7 +2047,8 @@ void CTachyonRes::ComplateTEX()
 			for( int i=0; i<nCount; i++)
 			{
 				MAPRES::iterator finder = m_mapTEXSRC.find((DWORD) pTEX->GetTexturePtr(i));
-				pTEX->SetTexturePtr( i, (CT3DTexture *) (*finder).second);
+				if (finder != m_mapTEXSRC.end())
+					pTEX->SetTexturePtr( i, (CT3DTexture *) (*finder).second);
 			}
 		}
 	}

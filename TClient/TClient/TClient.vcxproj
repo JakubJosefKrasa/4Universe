@@ -80,7 +80,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86;..\..\NPGame\MT;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(IntDir)TClient.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(SolutionDir)build\$(Configuration)\client\TClient.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapExports>true</MapExports>
       <SubSystem>Windows</SubSystem>

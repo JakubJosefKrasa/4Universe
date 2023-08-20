@@ -25,7 +25,7 @@
 //	Log Server	UDP Send Define
 //
 
-#define	DEF_UDPLOG
+//#define	DEF_UDPLOG
 
 
 #include "resource.h"

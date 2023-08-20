@@ -301,7 +301,7 @@ void CTachyonObject::ClearSFX( LPVECTOROBJSFX pSFX, LPMAPDWORD pINDEX)
 			CTachyonSFX::Release(pItem->m_dwID);
 			delete pItem;
 
-			pSFX->erase(it);
+			it = pSFX->erase(it);
 		}
 	}
 
@@ -1864,7 +1864,7 @@ void CTachyonObject::CalcSFX( CD3DDevice *pDevice, LPVECTOROBJSFX pSFX)
 			CTachyonSFX::Release(pItem->m_dwID);
 			delete pItem;
 
-			pSFX->erase(it);
+			it = pSFX->erase(it);
 		}
 	}
 }

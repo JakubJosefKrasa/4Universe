@@ -760,7 +760,7 @@ DWORD CTLoginSvrModule::OnCS_CHANNELLIST_REQ( CSqlDatabase *pDB, LPMAPTGROUP pGR
 				query->m_bStorageType = STORAGE_INVEN;
 				query->m_dwStorageID = INVEN_EQUIP;
 				query->m_bOwnerType = TOWNER_CHAR;
-				query->m_dwOwnerID = pUser->m_vCHAR[i]->m_dwCharID;
+				query->m_dwOwnerID = vCHAR[i]->m_dwCharID;
 
 				if(query->Open())
 				{
@@ -783,7 +783,7 @@ DWORD CTLoginSvrModule::OnCS_CHANNELLIST_REQ( CSqlDatabase *pDB, LPMAPTGROUP pGR
 			UNDEFINE_QUERY()
 
 			DEFINE_QUERY(&pGroup->m_db, CSPGetGuildInfo)
-			query->m_dwCharID = pUser->m_vCHAR[i]->m_dwCharID;
+			query->m_dwCharID = vCHAR[i]->m_dwCharID;
 			if(query->Call())
 			{
 				vCHAR[i]->m_strGuildName = query->m_szName;
@@ -798,7 +798,7 @@ DWORD CTLoginSvrModule::OnCS_CHANNELLIST_REQ( CSqlDatabase *pDB, LPMAPTGROUP pGR
 			<< GetCheckFilePoint(pUser)
 			<< BYTE(vCHAR.size());
 
-		for(i=0; i<vCHAR.size(); i++)
+		for(auto i=0; i<vCHAR.size(); i++)
 		{
 			(*pMSG)
 				<< vCHAR[i]->m_dwCharID

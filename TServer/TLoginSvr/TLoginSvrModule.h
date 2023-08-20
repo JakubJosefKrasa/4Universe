@@ -57,10 +57,10 @@ protected:
 	
 	MAPEVENTINFO m_mapEVENT;
 
-#ifdef DEF_UDPLOG
 	TCHAR m_szLogServerIP[ONE_KBYTE];
 	WORD  m_wLogServerPORT;
 
+#ifdef DEF_UDPLOG
 	CUdpSocket *m_pUdpSocket;
 #endif
 
@@ -73,10 +73,10 @@ protected:
 
 	void ProcessSession(CSqlDatabase *pDB, LPMAPTGROUP pGROUP, CTUser *pUser, DWORD dwIoBytes);
 
-	void OnInvalidSession( CTUser *pUser);				// 사용 금지
-	void OnCloseSession( CTUser *pUser);				// 사용 금지
-	void ClosingSession( CTUser *pUser);				// 사용 금지
-	void CloseSession( CTUser *pUser);					// 세션을 종료하려면 이 함수를 호출
+	void OnInvalidSession( CTUser *pUser);
+	void OnCloseSession( CTUser *pUser);
+	void ClosingSession( CTUser *pUser);
+	void CloseSession( CTUser *pUser);
 
 	void ClearThread();
 	void UpdateData();
